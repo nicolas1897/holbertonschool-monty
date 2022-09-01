@@ -63,6 +63,6 @@ void swap_nodes(stack_t **, unsigned int);
 void add_nodes(stack_t **, unsigned int);
 
 /*Error hanlding*/
-void err(int error_code, ...);
+
 
 #endif
