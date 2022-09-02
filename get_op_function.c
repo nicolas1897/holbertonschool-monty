@@ -1,36 +1,72 @@
 #include "monty.h"
 
 /**
- * get_op_func - function to select correct operation function
- * @token1: 1st bytecode input (opcode)
- * Return: pointer to correct operation function
+ * push - adds an element to a stack
+ * @stack: linked list stack to push to
+ * @line_number: current line number of bytecode file
  */
-void (*get_op_func(char *token1))(stack_t **stack, unsigned int line_number)
+void push(stack_t **stack, unsigned int line_number)
 {
-	instruction_t instruction_s[] = {
-		{"pop", pop},
-		{"pall", pall},
-		{"pint", pint},
-		{"swap", swap},
-		{"add", _add},
-		{"sub", _sub},
-		{"mul", _mul},
-		{"div", _div},
-		{"mod", _mod},
-		{"pchar", pchar},
-		{"pstr", pstr},
-		{"nop", nop},
-		{"rotl", rotl},
-		{"rotr", rotr},
-		{NULL, NULL}
-	};
-	int i = 0;
+	stack_t *newNode;
 
-	while (instruction_s[i].f != NULL)
+	newNode = malloc(sizeof(stack_t));
+
+	if (!newNode)
 	{
-		if (strcmp(token1, instruction_s[i].opcode) == 0)
-			return (instruction_s[i].f);
-		i++;
+		fprintf(stderr, "Error: malloc failed\n");
+		free_stack(stack);
+		err();
 	}
-	return (NULL);
+
+	(void)line_number;
+
+	if (*stack)
+		(*stack)->prev = newNode;
+
+	newNode->prev = NULL;
+	newNode->next = *stack;
+	newNode->n = 0;
+	*stack = newNode;
+}
+
+/**
+ * pop - removes the first element of the stack
+ * @stack: linked list stack to pop
+ * @line_number: current line number of bytecode file
+ */
+void pop(stack_t **stack, unsigned int line_number)
+{
+	stack_t *temp;
+
+	temp = *stack;
+	if (!(*stack))
+	{
+		fprintf(stderr, "L%d: can't pop an empty stack\n", line_number);
+		fclose(file);
+		free_stack(stack);
+		exit(EXIT_FAILURE);
+	}
+
+	*stack = temp->next;
+	if (*stack)
+		(*stack)->prev = NULL;
+	free(temp);
+}
+
+/**
+ * pint - prints the value in the first node of a stack
+ * @stack: linked list stack to pint
+ * @line_number: current line number of bytecode file
+ */
+void pint(stack_t **stack, unsigned int line_number)
+{
+	if (!(*stack))
+	{
+		fprintf(stderr, "L%d: can't pint, stack empty\n", line_number);
+		fclose(file);
+		free_stack(stack);
+		exit(EXIT_FAILURE);
+	}
+
+	printf("%d\n", (*stack)->n);
 }
