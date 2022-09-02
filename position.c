@@ -1,77 +1,71 @@
 #include "monty.h"
 /**
- * swap - swap locations of previous stack with the top stack
- * @h: node to be swapped
- * @line_number: node number
+ * pall - prints all elements of a stack
+ * @stack: linked list stack to pall
+ * @line_number: current line number of bytecode file
  */
-void swap(stack_t **h, unsigned int line_number)
+void pall(stack_t **stack, unsigned int line_number)
 {
-	stack_t *tmp = NULL;
+	stack_t *temp;
 
-	if (*h == NULL || (*h)->next == NULL)
+	(void)line_number;
+	temp = *stack;
+	while (temp)
 	{
-		printf("L%u: can't swap, stack too short\n", line_number);
+		printf("%d\n", temp->n);
+		temp = temp->next;
+	}
+}
+
+/**
+ * swap - swaps the two top elements of a stack
+ * @stack: linked list stack to swap
+ * @line_number: current line number of bytecode file
+ */
+void swap(stack_t **stack, unsigned int line_number)
+{
+	int temp = (*stack)->n;
+
+	if (!(*stack) || !(*stack)->next)
+	{
+		fprintf(stderr, "L%d: can't swap, stack too short\n", line_number);
+		fclose(file);
 		exit(EXIT_FAILURE);
 	}
-	tmp = (*h)->next;
-	if (tmp->next != NULL)
-	{
-		(*h)->next = tmp->next;
-		(*h)->next->prev = *h;
 
-	}
-	else
-	{
-		tmp->prev->prev = tmp;
-		tmp->prev->next = NULL;
-	}
-	tmp->prev = NULL;
-	tmp->next = *h;
-	(*h) = tmp;
+	(*stack)->n = (*stack)->next->n;
+	(*stack)->next->n = temp;
 }
+
 /**
- * rotl - rotate so top of stack becomes last one, second becomes first one
- * @h: node to be rotated
- * @line_number: node number
+ * add - adds the first two elements of a stack, replaces both with sum
+ * @stack: linked list stack to add
+ * @line_number: current line number of bytecode file
  */
-void rotl(stack_t **h, unsigned int line_number)
+void add(stack_t **stack, unsigned int line_number)
 {
-	stack_t *tmp;
+	stack_t *temp = *stack;
 
-	(void) line_number;
-
-	if ((*h)->next != NULL)
+	if (!temp || !temp->next)
 	{
-		tmp = *h;
-		while (tmp->next != NULL)
-			tmp = tmp->next;
-		(*h)->prev = tmp;
-		tmp->next = *h;
-		(*h)->next->prev = NULL;
-		*h = (*h)->next;
-		tmp->next->next = NULL;
+		fprintf(stderr, "L%d: can't add, stack too short\n", line_number);
+		free_stack(stack);
+		err();
 	}
+
+	temp->next->n += temp->n;
+	*stack = temp->next;
+	(*stack)->prev = NULL;
+	free(temp);
 }
+
 /**
- * rotr - rotate so only bottom node of stack becomes first one
- * @h: node to be rotated
- * @line_number: node number
+ * nop - does nothing
+ * @stack: linked list stack to do nothing to
+ * @line_number: current line number of bytecode file
  */
-void rotr(stack_t **h, unsigned int line_number)
+void nop(stack_t **stack, unsigned int line_number)
 {
-	stack_t *tmp;
-
-	(void) line_number;
-
-	if ((*h)->next != NULL)
-	{
-		tmp = *h;
-		while (tmp->next != NULL)
-			tmp = tmp->next;
-		(*h)->prev = tmp;
-		tmp->next = *h;
-		tmp->prev->next = NULL;
-		tmp->prev = NULL;
-		(*h) = (*h)->prev;
-	}
+	(void)stack;
+	(void)line_number;
 }
